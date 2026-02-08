@@ -1,0 +1,19 @@
+[
+  {
+    "id": "company-a.text-1",
+    "name": "Company A - Text API",
+    "base_model_id": "company-a/model-name-1",
+    "base_url": "https://api.company-a.example/v1",
+    "description": "Company A hosted model (commit this file, keep keys in .env)",
+    "owned_by": "company-a",
+    "connection_type": "external"
+  },
+  {
+    "id": "company-b.text-1",
+    "name": "Company B - Text API",
+    "base_url": "https://models.company-b.example/v1",
+    "description": "Company B hosted model",
+    "owned_by": "company-b",
+    "connection_type": "external"
+  }
+]

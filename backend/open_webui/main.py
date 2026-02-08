@@ -753,6 +753,16 @@ app.state.SCIM_TOKEN = SCIM_TOKEN
 app.state.config.ENABLE_BASE_MODELS_CACHE = ENABLE_BASE_MODELS_CACHE
 app.state.BASE_MODELS = []
 
+# Load static models now that app and config are initialized.
+try:
+    from ._static_loader import load_static_models
+    load_static_models(app)
+except Exception:
+    # Keep server running even if static loader fails
+    import logging
+
+    logging.getLogger(__name__).exception("Failed to run static models loader")
+
 ########################################
 #
 # WEBUI

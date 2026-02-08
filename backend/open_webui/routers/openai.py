@@ -150,6 +150,13 @@ async def get_headers_and_cookies(
     if auth_type == "bearer" or auth_type is None:
         # Default to bearer if not specified
         token = f"{key}"
+    elif auth_type == "header":
+        # Use a custom header to pass the key (e.g. 'apikey').
+        # The header name can be configured with 'auth_header' in the api config.
+        if key:
+            header_name = config.get("auth_header", "apikey")
+            headers[header_name] = f"{key}"
+        token = None
     elif auth_type == "none":
         token = None
     elif auth_type == "session":
@@ -534,6 +541,11 @@ async def get_all_models(request: Request, user: UserModel) -> dict[str, list]:
 
     models = get_merged_models(map(extract_data, responses))
     log.debug(f"models: {models}")
+    # Merge in any static models defined in the repository (do not override dynamic ones)
+    static_models = getattr(request.app.state, "OPENAI_STATIC_MODELS", {}) or {}
+    for sid, sm in static_models.items():
+        if sid not in models:
+            models[sid] = sm
 
     request.app.state.OPENAI_MODELS = models
     return {"data": list(models.values())}
@@ -860,6 +872,21 @@ async def generate_chat_completion(
     model = request.app.state.OPENAI_MODELS.get(model_id)
     if model:
         idx = model["urlIdx"]
+        # If the model entry defines a provider model name, use it as the
+        # `model` field in the forwarded OpenAI-style request. This allows
+        # the UI to show a friendly/local `id` while sending the actual
+        # provider model name (e.g. /genai/Llama-4-Scout-17B) to the API.
+        provider_model_name = None
+        try:
+            provider_model_name = (
+                model.get("base_model_id")
+                or (model.get("openai") or {}).get("id")
+                or model.get("id")
+            )
+        except Exception:
+            provider_model_name = model.get("id")
+        if provider_model_name:
+            payload["model"] = provider_model_name
     else:
         raise HTTPException(
             status_code=404,
@@ -939,13 +966,16 @@ async def generate_chat_completion(
             trust_env=True, timeout=aiohttp.ClientTimeout(total=AIOHTTP_CLIENT_TIMEOUT)
         )
 
+        # For HTTP URLs, disable SSL verification; for HTTPS, use the configured setting
+        use_ssl = AIOHTTP_CLIENT_SESSION_SSL if request_url.startswith("https") else False
+
         r = await session.request(
             method="POST",
             url=request_url,
             data=payload,
             headers=headers,
             cookies=cookies,
-            ssl=AIOHTTP_CLIENT_SESSION_SSL,
+            ssl=use_ssl,
         )
 
         # Check if response is SSE

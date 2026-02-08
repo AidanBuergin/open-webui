@@ -1081,6 +1081,17 @@ OPENAI_API_CONFIGS = PersistentConfig(
     {},
 )
 
+# If a single API key was provided but multiple base URLs exist,
+# broadcast the single key to all URLs so one secret can be reused.
+try:
+    keys_val = OPENAI_API_KEYS.value if hasattr(OPENAI_API_KEYS, "value") else OPENAI_API_KEYS
+    urls_val = OPENAI_API_BASE_URLS.value if hasattr(OPENAI_API_BASE_URLS, "value") else OPENAI_API_BASE_URLS
+    if isinstance(keys_val, list) and len(keys_val) == 1 and isinstance(urls_val, list) and len(urls_val) > 1:
+        expanded = [keys_val[0]] * len(urls_val)
+        OPENAI_API_KEYS = PersistentConfig("OPENAI_API_KEYS", "openai.api_keys", expanded)
+except Exception:
+    log.exception("Failed to expand single OPENAI_API_KEY to multiple OPENAI_API_KEYS")
+
 # Get the actual OpenAI API key based on the base URL
 OPENAI_API_KEY = ""
 try:
