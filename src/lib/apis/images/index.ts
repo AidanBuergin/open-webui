@@ -197,6 +197,7 @@ export const getImageGenerationModels = async (token: string = '') => {
 };
 
 export const imageGenerations = async (token: string = '', prompt: string) => {
+	console.log('imageGenerations', { token, prompt });
 	let error = null;
 
 	const res = await fetch(`${IMAGES_API_BASE_URL}/generations`, {

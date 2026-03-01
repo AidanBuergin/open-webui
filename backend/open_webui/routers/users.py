@@ -225,6 +225,7 @@ class FeaturesPermissions(BaseModel):
 
     web_search: bool = True
     image_generation: bool = True
+    image_editing: bool = True  # NEW: Image editing permission
     code_interpreter: bool = True
     memories: bool = True
 

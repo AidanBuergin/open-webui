@@ -39,6 +39,8 @@
 	export let imageGenerationEnabled = false;
 	export let showCodeInterpreterButton = false;
 	export let codeInterpreterEnabled = false;
+	export let showImageEditButton = false;
+	export let imageEditEnabled = false;
 
 	export let onShowValves: Function;
 	export let onClose: Function;
@@ -250,6 +252,7 @@
 								class="flex w-full justify-between gap-2 items-center px-3 py-1.5 text-sm cursor-pointer rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50"
 								on:click={() => {
 									imageGenerationEnabled = !imageGenerationEnabled;
+									imageEditEnabled = false;
 								}}
 							>
 								<div class="flex-1 truncate">
@@ -265,6 +268,35 @@
 								<div class=" shrink-0">
 									<Switch
 										state={imageGenerationEnabled}
+										on:change={async (e) => {
+											const state = e.detail;
+											await tick();
+										}}
+									/>
+								</div>
+							</button>
+						</Tooltip>
+					{/if}
+
+					{#if showImageEditButton && imageGenerationEnabled}
+						<Tooltip content={$i18n.t('Edit an image')} placement="top-start">
+							<button
+								class="flex w-full justify-between gap-2 items-center px-3 py-1.5 text-sm cursor-pointer rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50"
+								on:click={() => {
+									imageEditEnabled = !imageEditEnabled;
+								}}
+							>
+								<div class="flex-1 truncate">
+									<div class="flex flex-1 gap-2 items-center">
+										<div class="shrink-0">
+											<Photo className="size-4" strokeWidth="1.5" />
+										</div>
+										<div class="truncate">{$i18n.t('Edit Image')}</div>
+									</div>
+								</div>
+								<div class="shrink-0">
+									<Switch
+										state={imageEditEnabled}
 										on:change={async (e) => {
 											const state = e.detail;
 											await tick();
@@ -309,6 +341,7 @@
 							</button>
 						</Tooltip>
 					{/if}
+
 				</div>
 			{:else if tab === 'tools' && tools}
 				<div in:fly={{ x: 20, duration: 150 }}>

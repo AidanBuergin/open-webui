@@ -138,6 +138,7 @@
 	let imageGenerationEnabled = false;
 	let webSearchEnabled = false;
 	let codeInterpreterEnabled = false;
+	let imageEditEnabled = false;
 
 	let showCommands = false;
 
@@ -259,6 +260,7 @@
 		webSearchEnabled = false;
 		imageGenerationEnabled = false;
 		codeInterpreterEnabled = false;
+		imageEditEnabled = false;
 
 		if (selectedModelIds.filter((id) => id).length > 0) {
 			setDefaults();
@@ -584,6 +586,7 @@
 			webSearchEnabled = false;
 			imageGenerationEnabled = false;
 			codeInterpreterEnabled = false;
+			imageEditEnabled = false;
 
 			try {
 				const input = JSON.parse(storageChatInput);
@@ -1970,6 +1973,7 @@
 					(server, idx) => toolServerIds.includes(idx) || toolServerIds.includes(server?.id)
 				),
 				features: getFeatures(),
+				editImageEnabled: imageEditEnabled,
 				variables: {
 					...getPromptVariables($user?.name, $settings?.userLocation ? userLocation : undefined)
 				},
@@ -2547,6 +2551,7 @@
 									bind:selectedToolIds
 									bind:selectedFilterIds
 									bind:imageGenerationEnabled
+									bind:imageEditEnabled
 									bind:codeInterpreterEnabled
 									bind:webSearchEnabled
 									bind:atSelectedModel

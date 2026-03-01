@@ -1951,6 +1951,7 @@ async def get_app_config(request: Request):
                     "enable_code_execution": app.state.config.ENABLE_CODE_EXECUTION,
                     "enable_code_interpreter": app.state.config.ENABLE_CODE_INTERPRETER,
                     "enable_image_generation": app.state.config.ENABLE_IMAGE_GENERATION,
+                    "enable_image_editing": app.state.config.ENABLE_IMAGE_EDIT,
                     "enable_autocomplete_generation": app.state.config.ENABLE_AUTOCOMPLETE_GENERATION,
                     "enable_community_sharing": app.state.config.ENABLE_COMMUNITY_SHARING,
                     "enable_message_rating": app.state.config.ENABLE_MESSAGE_RATING,

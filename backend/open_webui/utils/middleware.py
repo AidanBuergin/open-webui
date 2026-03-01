@@ -1002,6 +1002,8 @@ async def chat_image_generation_handler(
     chat_id = metadata.get("chat_id", None)
     __event_emitter__ = extra_params.get("__event_emitter__", None)
 
+    editImageEnabled = extra_params.get("__edit_image_enabled__", False)
+
     if not chat_id or not isinstance(chat_id, str) or not __event_emitter__:
         return form_data
 
@@ -1036,7 +1038,9 @@ async def chat_image_generation_handler(
 
     system_message_content = ""
 
-    if len(input_images) > 0 and request.app.state.config.ENABLE_IMAGE_EDIT:
+    # Only trigger image edit if ENABLE_IMAGE_EDIT is True in admin settings and editImageEnabled is set to True in chat UI
+    if len(input_images) > 0 and request.app.state.config.ENABLE_IMAGE_EDIT and editImageEnabled:
+        print('DEBUG-TAG EDIT')
         # Edit image(s)
         try:
             images = await image_edits(
@@ -1097,6 +1101,7 @@ async def chat_image_generation_handler(
     else:
         # Create image(s)
         if request.app.state.config.ENABLE_IMAGE_PROMPT_GENERATION:
+            print('DEBUG-TAG PROMPT GENERATION')
             try:
                 res = await generate_image_prompt(
                     request,
@@ -1126,6 +1131,7 @@ async def chat_image_generation_handler(
                 log.exception(e)
                 prompt = user_message
 
+        print('DEBUG-TAG CREATE')
         try:
             images = await image_generations(
                 request=request,
@@ -1552,6 +1558,11 @@ async def process_chat_payload(request, form_data, user, metadata, model):
         )
     except Exception as e:
         raise Exception(f"{e}")
+
+    # extract and remove the editImageEnabled parameter from form_data
+    extra_params["__edit_image_enabled__"] = bool(
+        form_data.pop("editImageEnabled", False)
+    )
 
     features = form_data.pop("features", None) or {}
     extra_params["__features__"] = features

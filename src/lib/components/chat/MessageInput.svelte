@@ -118,6 +118,7 @@
 	export let selectedFilterIds = [];
 
 	export let imageGenerationEnabled = false;
+	export let imageEditEnabled = false; // NEW: Edit Image toggle state
 	export let webSearchEnabled = false;
 	export let codeInterpreterEnabled = false;
 
@@ -151,6 +152,7 @@
 		selectedToolIds,
 		selectedFilterIds,
 		imageGenerationEnabled,
+		imageEditEnabled,
 		webSearchEnabled,
 		codeInterpreterEnabled
 	});
@@ -478,6 +480,13 @@
 			imageGenerationCapableModels.length &&
 		$config?.features?.enable_image_generation &&
 		($_user.role === 'admin' || $_user?.permissions?.features?.image_generation);
+
+	let showImageEditButton = false;
+	$: showImageEditButton =
+		(atSelectedModel?.id ? [atSelectedModel.id] : selectedModels).length ===
+			imageGenerationCapableModels.length &&
+		$config?.features?.enable_image_editing &&
+		($_user.role === 'admin' || $_user?.permissions?.features?.image_editing);
 
 	let showCodeInterpreterButton = false;
 	$: showCodeInterpreterButton =
@@ -1393,6 +1402,7 @@
 
 															webSearchEnabled = false;
 															imageGenerationEnabled = false;
+															imageEditEnabled = false;
 															codeInterpreterEnabled = false;
 														}
 													}}
@@ -1501,7 +1511,7 @@
 										</div>
 									</InputMenu>
 
-									{#if showWebSearchButton || showImageGenerationButton || showCodeInterpreterButton || showToolsButton || (toggleFilters && toggleFilters.length > 0)}
+									{#if showWebSearchButton || showImageGenerationButton || showImageEditButton || showCodeInterpreterButton || showToolsButton || (toggleFilters && toggleFilters.length > 0)}
 										<div
 											class="flex self-center w-[1px] h-4 mx-1 bg-gray-200/50 dark:bg-gray-800/50"
 										/>
@@ -1511,11 +1521,13 @@
 											{toggleFilters}
 											{showWebSearchButton}
 											{showImageGenerationButton}
+											{showImageEditButton}
 											{showCodeInterpreterButton}
 											bind:selectedToolIds
 											bind:selectedFilterIds
 											bind:webSearchEnabled
 											bind:imageGenerationEnabled
+											bind:imageEditEnabled
 											bind:codeInterpreterEnabled
 											closeOnOutsideClick={integrationsMenuCloseOnOutsideClick}
 											onShowValves={(e) => {
@@ -1642,10 +1654,30 @@
 										{#if imageGenerationEnabled}
 											<Tooltip content={$i18n.t('Image')} placement="top">
 												<button
-													on:click|preventDefault={() =>
-														(imageGenerationEnabled = !imageGenerationEnabled)}
+													on:click|preventDefault={() => {
+														imageGenerationEnabled = !imageGenerationEnabled;
+														imageEditEnabled = false;
+													}}
 													type="button"
 													class="group p-[7px] flex gap-1.5 items-center text-sm rounded-full transition-colors duration-300 focus:outline-hidden max-w-full overflow-hidden {imageGenerationEnabled
+														? ' text-sky-500 dark:text-sky-300 bg-sky-50 hover:bg-sky-100 dark:bg-sky-400/10 dark:hover:bg-sky-700/10 border border-sky-200/40 dark:border-sky-500/20'
+														: 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 '}"
+												>
+													<Photo className="size-4" strokeWidth="1.75" />
+													<div class="hidden group-hover:block">
+														<XMark className="size-4" strokeWidth="1.75" />
+													</div>
+												</button>
+											</Tooltip>
+										{/if}
+
+										{#if imageEditEnabled}
+											<Tooltip content={$i18n.t('Edit')} placement="top">
+												<button
+													on:click|preventDefault={() =>
+														(imageEditEnabled = !imageEditEnabled)}
+													type="button"
+													class="group p-[7px] flex gap-1.5 items-center text-sm rounded-full transition-colors duration-300 focus:outline-hidden max-w-full overflow-hidden {imageEditEnabled
 														? ' text-sky-500 dark:text-sky-300 bg-sky-50 hover:bg-sky-100 dark:bg-sky-400/10 dark:hover:bg-sky-700/10 border border-sky-200/40 dark:border-sky-500/20'
 														: 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 '}"
 												>

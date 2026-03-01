@@ -1,11 +1,3 @@
 [
-  {
-    "id": "llama-4-scout-17b",
-    "name": "Llama-4-Scout-17B",
-    "base_model_id": "/genai/Llama-4-Scout-17B",
-    "base_url": "http://10.73.89.78/bae-api-llama4/v1",
-    "description": "Llama-4 Scout",
-    "owned_by": "Meta",
-    "connection_type": "external"
-  }
+
 ]

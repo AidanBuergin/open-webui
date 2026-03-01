@@ -992,6 +992,7 @@ async def image_edits(
                 "x-goog-api-key": request.app.state.config.IMAGES_EDIT_GEMINI_API_KEY,
             }
 
+            # Only the generateContent endpoint is currently supported for image editing in Gemini
             model = f"{model}:generateContent"
             data = {"contents": [{"parts": [{"text": form_data.prompt}]}]}
 
